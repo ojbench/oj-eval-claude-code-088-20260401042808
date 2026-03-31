@@ -15,10 +15,11 @@ struct Node {
 class CircularLinkedList {
 private:
     Node* head;
+    Node* tail; // Keep track of tail to avoid O(n) traversal
     long long size;
 
 public:
-    CircularLinkedList() : head(nullptr), size(0) {}
+    CircularLinkedList() : head(nullptr), tail(nullptr), size(0) {}
 
     ~CircularLinkedList() {
         if (!head) return;
@@ -27,10 +28,6 @@ public:
         Node* next_node;
 
         // Break the circular link
-        Node* tail = head;
-        while (tail->next != head) {
-            tail = tail->next;
-        }
         tail->next = nullptr;
 
         // Delete all nodes
@@ -52,7 +49,8 @@ public:
         }
 
         // Make it circular
-        current->next = head;
+        tail = current;
+        tail->next = head;
     }
 
     long long getTop() {
@@ -63,19 +61,15 @@ public:
         if (!head || head->next == head) return;
 
         // Step 1: Move first card to end
+        // Update tail to point to the old head (which is now at the end)
+        tail = head;
         head = head->next;
 
         // Step 2: Discard the (new) first card
         Node* to_delete = head;
 
-        // Find the node before head
-        Node* prev = head;
-        while (prev->next != head) {
-            prev = prev->next;
-        }
-
-        // Update links
-        prev->next = head->next;
+        // Update tail to skip the node to be deleted
+        tail->next = head->next;
         head = head->next;
 
         delete to_delete;
